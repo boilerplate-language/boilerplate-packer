@@ -125,7 +125,8 @@ resource "aws_security_group_rule" "out_http" {
   protocol          = "tcp"
   from_port         = 80
   to_port           = 80
-  prefix_list_ids   = [data.aws_prefix_list.s3_pl.id]
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
 }
 
 resource "aws_security_group_rule" "out_https" {
@@ -134,8 +135,20 @@ resource "aws_security_group_rule" "out_https" {
   protocol          = "tcp"
   from_port         = 443
   to_port           = 443
-  prefix_list_ids   = [data.aws_prefix_list.s3_pl.id]
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
 }
+
+resource "aws_security_group_rule" "out_icmp" {
+  security_group_id = aws_security_group.packer_sg.id
+  type              = "egress"
+  protocol          = "icmp"
+  from_port         = -1
+  to_port           = -1
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+}
+
 resource "aws_security_group_rule" "in_ssh" {
   security_group_id = aws_security_group.packer_sg.id
   type              = "ingress"
