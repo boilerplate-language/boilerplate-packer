@@ -10,34 +10,25 @@ variable "version" {
   default = "1.0.0"
 }
 
-variable "goss_version" {
-  type    = string
-  default = "v0.3.16"
-}
-
-variable "goss_arch" {
-  type    = string
-  default = "amd64"
-}
-
 source "amazon-ebs" "packer-ami" {
   ami_name = "${local.project}-ami"
   profile  = local.profile
 
-  instance_type = "t2.micro"
+  instance_type = "a1.medium"
   region        = "ap-northeast-1"
   source_ami_filter {
     filters = {
-      name                = "amzn2-ami-hvm-2.0.*-x86_64-gp2"
+      platform-details    = "Red Hat Enterprise Linux"
+      architecture        = "arm64"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
     most_recent = true
-    owners      = ["amazon"]
+    owners      = ["309956199498"]
   }
   launch_block_device_mappings {
-    device_name = "/dev/xvda"
-    volume_size = 8
+    device_name = "/dev/sda1"
+    volume_size = 10
   }
 
   vpc_filter {
