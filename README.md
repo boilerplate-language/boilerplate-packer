@@ -2,6 +2,9 @@
 
 Template for packer
 
+[![Terraform](https://github.com/kannkyo/boilerplate-packer/actions/workflows/terraform-publish.yml/badge.svg)](https://github.com/kannkyo/boilerplate-packer/actions/workflows/terraform-publish.yml)
+[![terraform ci](https://github.com/kannkyo/boilerplate-packer/actions/workflows/terraform-ci.yml/badge.svg)](https://github.com/kannkyo/boilerplate-packer/actions/workflows/terraform-ci.yml)
+
 ## 開発方法
 
 ### 事前準備
