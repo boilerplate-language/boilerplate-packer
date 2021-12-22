@@ -62,7 +62,7 @@ source "amazon-ebs" "packer-ami" {
   associate_public_ip_address = true
 
   ssh_keypair_name     = "${local.project}-${local.environment}-keypair"
-  ssh_private_key_file = "./config/${local.project}-${local.environment}-keypair.pem"
+  ssh_private_key_file = "./config/${local.project}-${local.environment}-keypair"
   ssh_interface        = "public_ip"
   ssh_username         = "ec2-user"
 
@@ -70,7 +70,7 @@ source "amazon-ebs" "packer-ami" {
     Name          = "${local.project}-ami"
     SourceAMIID   = "{{ .SourceAMI }}"
     SourceAMIName = "{{ .SourceAMIName }}"
-    Version       = "${var.version}"
+    Version       = var.version
     Created       = local.timestamp
   }
 }
