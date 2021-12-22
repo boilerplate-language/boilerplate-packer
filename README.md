@@ -28,13 +28,21 @@ packer fmt .
 ### イメージの検証
 
 ```bash
-packer validate boilerplate.pkr.hcl
+packer validate .
 ```
 
 ### イメージのビルド
 
+#### 新規作成
+
 ```bash
-packer build boilerplate.pkr.hcl
+packer build .
+```
+
+#### 再作成（AMIイメージ上書き）
+
+```bash
+packer build -force .
 ```
 
 ## Tips
@@ -58,3 +66,9 @@ aws ec2 describe-images --image-ids ami-0cdc4f61f73af4679
 ### インスタンスタイプの探し方
 
 AWS コンソールの[インスタンスタイプ](https://ap-northeast-1.console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#InstanceTypes:)で検索する。
+
+### テストのローカル実行
+
+```bash
+goss --gossfile ./tests/goss.yaml validate
+```
