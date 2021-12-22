@@ -36,3 +36,25 @@ packer validate boilerplate.pkr.hcl
 ```bash
 packer build boilerplate.pkr.hcl
 ```
+
+## Tips
+
+### AWSイメージの探し方
+
+まず、AWS コンソールの[AMIカタログ](https://ap-northeast-1.console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#AMICatalog:)で検索して、AMI ID を確認する。
+
+次に、AWS CLI で AWS イメージの詳細を確認する。
+
+```bash
+aws ec2 describe-images --image-ids <AMI_ID> --owners <OWNER> --filters <FILTER>
+```
+
+例は以下。
+
+```bash
+aws ec2 describe-images --image-ids ami-0cdc4f61f73af4679
+```
+
+### インスタンスタイプの探し方
+
+AWS コンソールの[インスタンスタイプ](https://ap-northeast-1.console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#InstanceTypes:)で検索する。
