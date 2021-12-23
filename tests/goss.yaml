@@ -1,0 +1,17 @@
+user:
+  root:
+    exists: true
+    uid: 0
+    gid: 0
+    groups:
+      - root
+    home: /root
+    shell: /bin/bash
+command:
+  ansible:
+    exec: ansible --version
+    exit-status: 0
+    stdout:
+      - /ansible 2\.\d+\.\d+/
+    stderr: []
+    timeout: 10000

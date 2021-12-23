@@ -1,25 +1,55 @@
 locals {
-  timestamp   = formatdate("YYYYMMDDhhmmss", timestamp())
-  project     = "boilerplate-packer"
-  profile     = "packer"
-  environment = "dev"
+  timestamp = formatdate("YYYYMMDDhhmmss", timestamp())
+  prefix    = "${var.project}-${var.environment}"
 }
 
-variable "version" {
-  type    = string
-  default = "1.0.0"
+variable "project" {
+  type = string
+}
+
+variable "profile" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "ami_rhel_version" {
+  type = string
+}
+
+variable "ami_rhel_architecture" {
+  type = string
+}
+
+variable "ami_instance_type" {
+  type = string
+}
+
+variable "packer_version" {
+  type = string
+}
+
+variable "goss_version" {
+  type = string
+}
+
+variable "goss_architecture" {
+  type = string
 }
 
 source "amazon-ebs" "packer-ami" {
-  ami_name = "${local.project}-ami"
-  profile  = local.profile
+  ami_name = "${var.project}-ami"
+  profile  = var.profile
 
-  instance_type = "a1.medium"
+  instance_type = var.ami_instance_type # 無料トライアルは、2021 年 12 月 31 日までの期間限定
   region        = "ap-northeast-1"
   source_ami_filter {
     filters = {
+      name                = "RHEL-${var.ami_rhel_version}*"
       platform-details    = "Red Hat Enterprise Linux"
-      architecture        = "arm64"
+      architecture        = var.ami_rhel_architecture
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
@@ -33,35 +63,35 @@ source "amazon-ebs" "packer-ami" {
 
   vpc_filter {
     filters = {
-      "tag:Name" : "${local.project}-${local.environment}-vpc"
+      "tag:Name" : "${local.prefix}-vpc"
     }
   }
 
   subnet_filter {
     filters = {
-      "tag:Name" : "${local.project}-${local.environment}-public-subnet-1a"
+      "tag:Name" : "${local.prefix}-public-subnet-1a"
     }
   }
 
   security_group_filter {
     filters = {
-      "tag:Name" : "${local.project}-${local.environment}-sg"
+      "tag:Name" : "${local.prefix}-sg"
     }
   }
 
-  iam_instance_profile        = "${local.project}-${local.environment}-iam-role"
+  iam_instance_profile        = "${local.prefix}-iam-role"
   associate_public_ip_address = true
 
-  ssh_keypair_name     = "${local.project}-${local.environment}-keypair"
-  ssh_private_key_file = "./config/${local.project}-${local.environment}-keypair"
+  ssh_keypair_name     = "${local.prefix}-keypair"
+  ssh_private_key_file = "./config/${local.prefix}-keypair"
   ssh_interface        = "public_ip"
   ssh_username         = "ec2-user"
 
   tags = {
-    Name          = "${local.project}-ami"
+    Name          = "${local.prefix}-ami"
     SourceAMIID   = "{{ .SourceAMI }}"
     SourceAMIName = "{{ .SourceAMIName }}"
-    Version       = var.version
+    Version       = var.packer_version
     Created       = local.timestamp
   }
 }
@@ -73,7 +103,35 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo build ${local.project}-ami"
+      # test network to public
+      "ping -c 2 www.google.com",
+
+      # configure subscription
+      # ref. https://dev.classmethod.jp/articles/tsnote-ec2-dnf-upgrade-error-001/
+      "sudo sed -i -e 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf",
+      "sudo cat /etc/yum/pluginconf.d/subscription-manager.conf",
+
+      # install all required packages
+      "sudo yum update -y",
+      "sudo yum install -y ansible"
+    ]
+  }
+
+  # provisioner "goss" {
+  #   skip_install = false
+  #   arch         = var.goss_architecture
+  #   version      = var.goss_version
+
+  #   tests = [
+  #     "tests/goss.yaml"
+  #   ]
+  #   use_sudo = true
+  # }
+
+  provisioner "shell" {
+    inline = [
+      "rm -rf /tmp/tests",
+      "rm -rf /tmp/goss-*"
     ]
   }
 }
